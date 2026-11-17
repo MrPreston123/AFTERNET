@@ -1,0 +1,8 @@
+{
+  "appId": "app.afternet.offline",
+  "appName": "AFTERNET",
+  "webDir": "out",
+  "server": { "androidScheme": "https" },
+  "android": { "backgroundColor": "#050505", "allowMixedContent": false },
+  "plugins": {}
+}

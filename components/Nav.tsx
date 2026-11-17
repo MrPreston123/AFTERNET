@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Logo from './Logo';
-import Icon from './Icon';
+import InstallButton from './InstallButton';
 import { SITE } from '@/lib/config';
 
 export default function Nav() {
@@ -14,8 +14,10 @@ export default function Nav() {
     return () => removeEventListener('scroll', f);
   }, []);
   const links = [
-    ['System', '/#modules'],
-    ['How it works', '/#how'],
+    ['Guides', '/app/#guides'],
+    ['Wikipedia', '/app/#wiki'],
+    ['Local AI', '/app/#ai'],
+    ['Maps', '/app/#maps'],
     ['Gear', '/gear/'],
     [SITE.ticker, '/#token'],
   ];
@@ -36,10 +38,9 @@ export default function Nav() {
           <span>Source</span>
         </a>
       </nav>
-      <a href="/app/" className="btn btn-red btn-sm nav-cta">
-        <Icon name="power" size={16} />
-        <span>Launch app</span>
-      </a>
+      <div className="nav-cta">
+        <InstallButton compact />
+      </div>
       <button className="nav-burger" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}>
         <i />
         <i />

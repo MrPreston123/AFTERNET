@@ -906,9 +906,12 @@ export function searchLibrary(q: string, limit = 6) {
       const title = tokens(s.guide.title + ' ' + s.heading);
       const body = tokens(s.text);
       let score = 0;
+      const guideTitle = tokens(s.guide.title);
       for (const t of qt) {
-        score += title.filter((w) => w.startsWith(t) || t.startsWith(w)).length * 4;
-        score += body.filter((w) => w === t).length;
+        const hit = (w: string) => w.length > 3 && t.length > 3 && (w.startsWith(t) || t.startsWith(w));
+        score += guideTitle.filter((w) => w === t || hit(w)).length * 6;
+        score += title.filter((w) => w === t || hit(w)).length * 3;
+        score += Math.min(2, body.filter((w) => w === t).length);
       }
       return { s, score };
     })
@@ -917,3 +920,13 @@ export function searchLibrary(q: string, limit = 6) {
     .slice(0, limit)
     .map((r) => r.s);
 }
+
+/** Each guide's matching article in the bundled Wikipedia pack (used for cover images and "read more"). */
+export const GUIDE_WIKI: Record<string, string> = {
+  cpr: 'cardiopulmonary-resuscitation', bleeding: 'tourniquet', burns: 'burn', fractures: 'splint-medicine', cold: 'hypothermia',
+  heat: 'heat-stroke', shock: 'shock-circulatory', wounds: 'wound', 'water-find': 'rainwater-harvesting', 'water-purify': 'portable-water-purification',
+  'water-store': 'water-storage', 'food-store': 'food-storage', forage: 'foraging', cook: 'rocket-stove', warm: 'lean-to', fire: 'fire-making',
+  'phone-power': 'battery-pack', solar: 'solar-panel', generator: 'electric-generator', nav: 'compass', radio: 'amateur-radio', signal: 'distress-signal',
+  garden: 'kitchen-garden', seeds: 'seed-saving', preserve: 'canning', sanitation: 'pit-latrine', 'medicine-kit': 'first-aid-kit', tools: 'hand-tool',
+  plan: 'survival-kit', community: 'mutual-aid',
+};

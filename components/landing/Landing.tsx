@@ -160,11 +160,11 @@ function Boot() {
 
 /* ─────────────── MODULES ─────────────── */
 const MODULES = [
-  { n: '01', icon: 'book', tab: 'wiki', title: 'Offline Wikipedia', text: 'Human knowledge, anywhere. Search and read Wikipedia, then save articles and essential packs to your device.', specs: ['Search millions of articles', 'One-tap Essentials pack', 'Full Wikipedia via Kiwix files'] },
-  { n: '02', icon: 'medkit', tab: 'library', title: 'Survival Library', text: 'First aid, water, food, shelter, power, navigation. Clear, step-by-step field guides built for stress.', specs: ['25+ field guides', 'Emergency quick cards', 'Zero-download, always there'] },
-  { n: '03', icon: 'chip', tab: 'ai', title: 'Local AI', text: 'Your own AI assistant running entirely on your device. Ask anything. No servers ever see your questions.', specs: ['Runs on your GPU', 'Grounded in the survival library', 'Private by design'] },
+  { n: '01', icon: 'book', tab: 'wiki', title: 'Offline Wikipedia', text: 'Human knowledge, anywhere. The essential survival articles and their images ship inside AFTERNET. Search and save the rest.', specs: ['62 essential articles built in', 'Images included, no download', 'Search & save the rest of Wikipedia'] },
+  { n: '02', icon: 'medkit', tab: 'guides', title: 'Survival Library', text: 'First aid, water, food, shelter, power, navigation. Clear, step-by-step field guides built for stress.', specs: ['30 illustrated field guides', 'Emergency quick cards', 'Zero download, always there'] },
+  { n: '03', icon: 'chip', tab: 'ai', title: 'Local AI', text: 'Your own AI assistant running entirely on your device. Ask anything. No servers ever see your questions.', specs: ['GPU or CPU: runs on any device', 'Grounded in the survival guides', 'Private by design'] },
   { n: '04', icon: 'map', tab: 'maps', title: 'Offline GPS', text: 'Download maps of your region and navigate without Wi-Fi or mobile data. GPS talks to satellites, not the internet.', specs: ['Download any area', 'Live position & heading', 'Saved waypoints'] },
-  { n: '05', icon: 'layers', tab: 'rebuild', title: 'Self-Sufficiency', text: 'Guides to survive the long haul and rebuild without modern infrastructure: grow, preserve, repair, organise.', specs: ['Gardens & seed saving', 'Food preservation', 'Tools & community'] },
+  { n: '05', icon: 'layers', tab: 'guides/rebuild', title: 'Self-Sufficiency', text: 'Guides to survive the long haul and rebuild without modern infrastructure: grow, preserve, repair, organise.', specs: ['Gardens & seed saving', 'Food preservation', 'Tools & community'] },
 ];
 function Modules() {
   const track = useRef<HTMLDivElement>(null);
@@ -230,8 +230,8 @@ function How() {
           </div>
           <ol className="steps">
             {[
-              ['Install', 'Add AFTERNET to your phone or computer from the browser. No app store, no account, no tracking.', 'download'],
-              ['Load your packs', 'Download Wikipedia articles, maps of your region and the local AI model you want.', 'storage'],
+              ['Install', 'One tap installs the app on Windows or Android. No app store, no account, no tracking.', 'download'],
+              ['Load your packs', 'Guides and Wikipedia are already inside. Add your region’s maps and an AI model.', 'storage'],
               ['Go dark', 'Switch on airplane mode. Everything keeps working, directly from your device.', 'wifiOff'],
             ].map(([t, d, ic], i) => (
               <li key={t} className="rv" data-d={String(i * 0.08)}>
@@ -247,10 +247,10 @@ function How() {
         </div>
         <div className="storage-table rv">
           <div className="st-row st-head"><span>Pack</span><span>Size on device</span><span>Needs</span></div>
-          <div className="st-row"><span>Survival Library</span><span>Built in</span><span>Nothing</span></div>
-          <div className="st-row"><span>Wikipedia Essentials</span><span>~5–15 MB</span><span>Any device</span></div>
+          <div className="st-row"><span>Survival Guides</span><span>Built in</span><span>Nothing</span></div>
+          <div className="st-row"><span>Wikipedia Essentials + images</span><span>Built in (~13 MB)</span><span>Nothing</span></div>
           <div className="st-row"><span>Offline maps (one city)</span><span>~20–150 MB</span><span>Any device</span></div>
-          <div className="st-row"><span>Local AI model</span><span>0.4–0.9 GB</span><span>WebGPU (recent Chrome / Edge / Safari)</span></div>
+          <div className="st-row"><span>Local AI model</span><span>0.5–1.1 GB</span><span>Any modern device (faster with a GPU)</span></div>
           <div className="st-row"><span>Full Wikipedia (Kiwix)</span><span>~100 GB</span><span>Free Kiwix reader</span></div>
         </div>
         <div className="oss rv">

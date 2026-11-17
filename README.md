@@ -16,24 +16,24 @@ AFTERNET is a free, open-source system you install straight from the browser ont
 
 ## Modules
 
-| Module | What it does | How it works offline |
+| Module | What it does | Offline |
 |---|---|---|
-| **Survival Library** | 25+ step-by-step field guides: first aid, water, food, shelter, power, navigation, comms | Bundled into the app, always available |
-| **Self-Sufficiency** | Growing food, seed saving, preserving, sanitation, tools, community organising | Bundled into the app |
-| **Offline Wikipedia** | Search and read all of Wikipedia, save any article, one-tap "Essentials" pack | Saved articles live in IndexedDB |
-| **Local AI** | Chat assistant that runs on your device's GPU, grounded in the survival library | [WebLLM](https://github.com/mlc-ai/web-llm) models cached in the browser after one download |
-| **Offline GPS** | Dark vector maps, live position, heading, speed, waypoints with distance and bearing | Download any visible area; tiles cached by the service worker. GPS needs no network |
-| **Gear** | Curated survival gear with what-to-look-for specs and a kit tracker | Kit tracker is local; store links need a connection |
+| **Survival Guides** | 30 illustrated step-by-step guides: first aid, water, food, shelter, power, navigation, comms, plus rebuilding (growing, preserving, sanitation, tools, community) | Built in |
+| **Wikipedia** | 62 essential articles **with their images** ship inside the app; search and save any other article while online | Built in |
+| **Local AI** | Chat assistant running on-device with llama.cpp (WebGPU when available, CPU otherwise), grounded in the survival guides | One-time model download (0.5–1.1 GB) |
+| **Offline Maps & GPS** | Dark vector maps, live position, heading, speed, waypoints with distance and bearing | Save any area; GPS needs no network |
+| **Downloads** | One screen to install the app and manage every downloadable pack | — |
+| **Gear** | Curated survival gear with what-to-look-for specs and a kit tracker | Tracker is local |
 
-## Install it (users)
+## Install
 
-1. Open the site and tap **Launch app** (or go to `/app/`).
-2. Install it:
-   - **iPhone/iPad:** Safari → Share → *Add to Home Screen*
-   - **Android:** Chrome → ⋮ → *Install app*
-   - **Windows/macOS/Linux:** Chrome or Edge → install icon in the address bar
-3. In the app, download your packs: Wikipedia Essentials, your region's maps and an AI model.
-4. Turn on airplane mode and test it.
+**One button on the website installs the right app for your device:**
+
+- **Windows:** `AFTERNET-Setup.exe`, a one-click installer (adds Start menu + desktop shortcuts and launches). Not yet code-signed: if SmartScreen warns, choose *More info → Run anyway*.
+- **Android:** `AFTERNET.apk`. Allow your browser to install unknown apps when asked.
+- **iPhone, Mac, Linux:** install from the browser (Safari: *Share → Add to Home Screen*; Chrome/Edge: install icon in the address bar).
+
+Downloads always come from the [latest GitHub Release](https://github.com/MrPreston123/AFTERNET/releases/latest).
 
 ## Run it yourself (developers)
 
@@ -44,9 +44,26 @@ npm install
 npm run dev        # http://localhost:3500
 npm run build      # static export to ./out with an offline service worker
 npm run serve      # serve the production build on http://localhost:3501
+npm run app:win    # build the Windows installer into dist-electron/
+npm run packs      # re-download the bundled Wikipedia pack (articles + images)
 ```
 
-The build is a fully static site in `out/`. Host it anywhere (Vercel, Netlify, GitHub Pages, Cloudflare Pages, a Raspberry Pi, a USB stick with any static web server). The service worker only registers in production builds.
+The website and both apps are the same static build in `out/`:
+
+- **Website:** host `out/` anywhere static (Vercel, Netlify, Cloudflare Pages, a Raspberry Pi).
+- **Windows:** Electron serves `out/` from inside the app over a private `app://` scheme ([`electron/main.cjs`](electron/main.cjs)).
+- **Android:** Capacitor wraps `out/` ([`android/`](android), [`capacitor.config.json`](capacitor.config.json)). Building it needs JDK 21 + Android SDK, or use CI.
+
+### Releasing the apps
+
+Push a version tag and GitHub Actions builds both apps and publishes them as a release ([`.github/workflows/release.yml`](.github/workflows/release.yml)):
+
+```bash
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+Without signing secrets the APK is debug-signed (installs fine; to update, uninstall first). For a stable release key, add these repository secrets: `ANDROID_KEYSTORE_B64` (base64 of the keystore), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`.
 
 ### Configuration
 
@@ -63,7 +80,11 @@ app/                 Next.js routes: / (landing), /app (the system), /gear
 components/landing/  Scroll-driven landing page sections
 components/three/    WebGL globe (React Three Fiber + custom shaders)
 components/app/      The offline app: library, wiki, AI, maps, system
-lib/library.ts       The survival library content (plain text, easy to contribute to)
+lib/library.ts       The survival guide content (plain text, easy to contribute to)
+lib/ai.ts            Local AI engine (wllama / llama.cpp)
+public/packs/wiki/   Bundled Wikipedia articles + images (built by scripts/wiki-pack.mjs)
+electron/            Windows app
+android/             Android app (Capacitor)
 lib/gear.ts          Gear catalogue
 public/sw.js         Service worker (precache list is generated at build time)
 scripts/             Build helpers: globe land-dots, PWA icons, precache manifest
@@ -84,7 +105,8 @@ Open an issue before large changes.
 - Code: [MIT](LICENSE)
 - Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, tiles by [OpenFreeMap](https://openfreemap.org)
 - Wikipedia content: [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
-- AI runtime: [WebLLM](https://github.com/mlc-ai/web-llm) (Apache 2.0); models under their own licences (Qwen, Llama 3.2 Community Licence)
+- AI runtime: [wllama](https://github.com/ngxson/wllama) / llama.cpp (MIT); models under their own licences (Qwen: Apache 2.0, Llama 3.2 Community Licence)
+- Wikipedia images: Wikimedia Commons, under their individual free licences (linked from each article's source)
 - Globe land data: [Natural Earth](https://www.naturalearthdata.com) via `world-atlas`
 
 ## Disclaimer

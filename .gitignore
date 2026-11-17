@@ -3,3 +3,7 @@ node_modules
 .next-dev
 out
 *.tsbuildinfo
+public/wllama
+dist-electron
+android/app/build
+android/.gradle

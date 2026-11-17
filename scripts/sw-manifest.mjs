@@ -4,7 +4,7 @@ import { join, relative, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 
 const root = 'out';
-const skip = [/^brand\/logo-source\.png$/, /^brand\/banner\.png$/, /\.txt$/, /^sw\.js$/, /^404/, /^_not-found/];
+const skip = [/^packs\//, /^wllama\//, /^brand\/logo-source\.png$/, /^brand\/banner\.png$/, /\.txt$/, /^sw\.js$/, /^404/, /^_not-found/];
 const files = [];
 (function walk(dir) {
   for (const name of readdirSync(dir)) {

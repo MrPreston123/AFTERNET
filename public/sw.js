@@ -2,7 +2,7 @@
 const VERSION = 'dev';
 const PRECACHE = [];
 const SHELL = `afternet-shell-${VERSION}`;
-const TILES = 'afternet-tiles';
+const PACKS = 'afternet-packs';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -31,25 +31,6 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // Map tiles, styles, sprites and glyphs: cache-first, so downloaded areas work with no signal.
-  if (url.hostname === 'tiles.openfreemap.org') {
-    event.respondWith(
-      (async () => {
-        const cache = await caches.open(TILES);
-        const hit = await cache.match(req, { ignoreVary: true });
-        if (hit) return hit;
-        try {
-          const res = await fetch(req);
-          if (res.ok) cache.put(req, res.clone());
-          return res;
-        } catch {
-          return new Response('', { status: 504 });
-        }
-      })(),
-    );
-    return;
-  }
-
   if (url.origin !== self.location.origin) return;
 
   // Pages: network first, fall back to the cached copy (and finally the app shell).
@@ -69,6 +50,25 @@ self.addEventListener('fetch', (event) => {
             (await cache.match('/app/')) ||
             new Response('AFTERNET is offline and this page was not saved.', { status: 503 })
           );
+        }
+      })(),
+    );
+    return;
+  }
+
+  // Wikipedia pack + AI runtime: cache first in the packs cache, stored as they're used.
+  if (url.pathname.startsWith('/packs/') || url.pathname.startsWith('/wllama/')) {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(PACKS);
+        const hit = await cache.match(url.pathname);
+        if (hit) return hit;
+        try {
+          const res = await fetch(req);
+          if (res.ok) cache.put(url.pathname, res.clone());
+          return res;
+        } catch {
+          return new Response('', { status: 504 });
         }
       })(),
     );

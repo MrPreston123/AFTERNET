@@ -1,0 +1,9 @@
+{
+  "Medicine": ["First aid", "Cardiopulmonary resuscitation", "Bleeding", "Tourniquet", "Burn", "Bone fracture", "Splint (medicine)", "Hypothermia", "Frostbite", "Heat stroke", "Dehydration", "Oral rehydration therapy", "Shock (circulatory)", "Anaphylaxis", "Wound", "Infection", "First aid kit"],
+  "Water": ["Water purification", "Portable water purification", "Solar water disinfection", "Rainwater harvesting", "Water well", "Water storage"],
+  "Food": ["Food preservation", "Canning", "Botulism", "Fermentation in food processing", "Root cellar", "Food storage", "Foraging", "Seed saving", "Composting", "Crop rotation", "Kitchen garden", "Potato", "Bread", "Edible plants"],
+  "Shelter & fire": ["Fire making", "Rocket stove", "Carbon monoxide poisoning", "Lean-to", "Survival skills", "Bug-out bag"],
+  "Power": ["Solar panel", "Power bank", "Lead–acid battery", "Lithium iron phosphate battery", "Electric generator"],
+  "Navigation & comms": ["Navigation", "Compass", "Celestial navigation", "Orienteering", "Morse code", "Amateur radio", "Citizens band radio", "Distress signal"],
+  "Rebuilding": ["Sanitation", "Pit latrine", "Soapmaking", "Knot", "Hand tool", "Mutual aid (organization theory)"]
+}

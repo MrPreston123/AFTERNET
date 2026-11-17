@@ -101,8 +101,8 @@ html.has-crosshair, html.has-crosshair * { cursor: none !important; }
   .nav { gap: 12px; }
   .nav-burger { display: block; }
   .nav-cta { margin-left: auto; }
-  .nav-cta span { display: none; }
-  .nav-cta { padding: 11px; }
+  .nav-cta .btn span, .nav-cta .btn small { display: none; }
+  .nav-cta .btn { padding: 11px; }
   .nav-links { position: fixed; inset: 0; top: 0; z-index: -1; flex-direction: column; justify-content: center; align-items: center; gap: 30px; font-size: 16px; background: rgba(5,5,5,.96); backdrop-filter: blur(20px); opacity: 0; pointer-events: none; transition: opacity .3s; margin: 0; }
   .nav.is-open .nav-links { opacity: 1; pointer-events: auto; }
 }
