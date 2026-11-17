@@ -33,7 +33,7 @@ const REL = `${GH}/releases/latest`;
 const L = {
   site: SITE, app: `${SITE}/app/`, download: `${SITE}/download/`, gear: `${SITE}/gear/`,
   win: `${REL}/download/AFTERNET-Setup.exe`, apk: `${REL}/download/AFTERNET.apk`, sums: `${REL}/download/SHA256SUMS.txt`,
-  gh: GH, rel: REL, issues: `${GH}/issues`, license: `${GH}/blob/main/LICENSE`,
+  x: 'https://x.com/afternetapp', gh: GH, rel: REL, issues: `${GH}/issues`, license: `${GH}/blob/main/LICENSE`,
 };
 const RED = 0xe5182b;
 
@@ -117,6 +117,7 @@ const MESSAGES = {
       { type: 2, style: 5, label: 'Website', url: L.site },
       { type: 2, style: 5, label: 'Download', url: L.download },
       { type: 2, style: 5, label: 'GitHub', url: L.gh },
+      { type: 2, style: 5, label: 'X / Twitter', url: L.x },
     ] }],
   }],
   '📜│rules': [{

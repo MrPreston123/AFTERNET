@@ -15,7 +15,7 @@ export const TOKEN = {
    * the coin exists on-chain (the CA is kept private until then). See discord-bot/api/token.js.
    */
   statusApi: 'https://afternet-discord.vercel.app/api/token',
-  xUrl: '',
+  xUrl: 'https://x.com/afternetapp',
   telegramUrl: '',
 };
 

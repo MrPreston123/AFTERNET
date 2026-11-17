@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     images: ['/brand/og.jpg'],
     type: 'website',
   },
-  twitter: { card: 'summary_large_image', images: ['/brand/og.jpg'] },
+  twitter: { card: 'summary_large_image', site: '@afternetapp', creator: '@afternetapp', images: ['/brand/og.jpg'] },
 };
 
 export const viewport: Viewport = { themeColor: '#050505', width: 'device-width', initialScale: 1, viewportFit: 'cover' };

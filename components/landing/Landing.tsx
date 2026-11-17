@@ -407,6 +407,7 @@ function Final() {
         <span>© {new Date().getFullYear()} AFTERNET · {SITE.ticker}</span>
         <span className="muted">Guides are general information, not a substitute for professional training. Gear links may earn a commission.</span>
         <span className="foot-links">
+          <a href={TOKEN.xUrl} target="_blank" rel="noreferrer">X</a>
           <a href={SITE.discord} target="_blank" rel="noreferrer">Discord</a>
           <a href={SITE.github} target="_blank" rel="noreferrer">Open source on GitHub</a>
         </span>
