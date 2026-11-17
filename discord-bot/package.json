@@ -1,13 +1,12 @@
 {
-  "name": "afternet-discord-bot",
+  "name": "afternet-discord",
   "private": true,
   "type": "module",
-  "description": "AFTERNET Discord: server setup + ticket bot",
+  "description": "AFTERNET Discord: server setup script + serverless support-ticket endpoint (Vercel)",
   "scripts": {
-    "setup": "node setup.mjs",
-    "start": "node bot.mjs"
+    "setup": "node setup.mjs"
   },
   "dependencies": {
-    "discord.js": "14.28.1"
+    "@vercel/functions": "3.11.3"
   }
 }
