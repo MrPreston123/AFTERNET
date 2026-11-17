@@ -50,7 +50,7 @@ jobs:
           profile: pixel_6
           ram-size: 4096M
           disk-size: 6000M
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          emulator-options: -no-window -gpu guest -noaudio -no-boot-anim -no-snapshot
           disable-animations: true
           script: mkdir -p test-results && (adb logcat -v time > test-results/logcat-full.txt 2>&1 &) && adb install -r AFTERNET.apk && timeout 38m node scripts/android-e2e.mjs
       - uses: actions/upload-artifact@v4
@@ -62,7 +62,7 @@ jobs:
       - name: Publish results
         if: always()
         run: |
-          mkdir -p /tmp/res && cp -r test-results/* /tmp/res/ 2>/dev/null || echo '{"error":"no results written (emulator did not reach the test script)"}' > /tmp/res/results.json
+          mkdir -p /tmp/res && cp AFTERNET.apk /tmp/res/AFTERNET-test.apk 2>/dev/null; cp -r test-results/* /tmp/res/ 2>/dev/null || echo '{"error":"no results written (emulator did not reach the test script)"}' > /tmp/res/results.json
           cd /tmp/res
           git init -q -b android-test-results
           git config user.name "AFTERNET CI"
