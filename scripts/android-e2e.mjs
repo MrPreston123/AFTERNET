@@ -62,11 +62,14 @@ shot('01-launch');
 
 // ── connect to the WebView ──
 let sock = '';
-for (let i = 0; i < 20 && !sock; i++) {
-  sock = sh('adb shell cat /proc/net/unix').split('\n').map((l) => l.match(/@(webview_devtools_remote_\d+)/)?.[1]).find(Boolean) || '';
+const revive = () => { trySh('adb reconnect offline', 20000); trySh('adb wait-for-device', 120000); };
+for (let i = 0; i < 30 && !sock; i++) {
+  const st = trySh('adb get-state', 10000);
+  if (st !== 'device') { console.log('adb state:', st || 'offline', '- reconnecting'); revive(); await sleep(3000); continue; }
+  sock = trySh('adb shell cat /proc/net/unix', 30000).split('\n').map((l) => l.match(/@(webview_devtools_remote_\d+)/)?.[1]).find(Boolean) || '';
   if (!sock) await sleep(2000);
 }
-if (!sock) throw new Error('WebView devtools socket not found. Resumed: ' + sh('adb shell dumpsys activity activities | grep -i mResumedActivity | head -2'));
+if (!sock) throw new Error('WebView devtools socket not found. adb: ' + trySh('adb get-state', 10000) + ' Resumed: ' + trySh('adb shell dumpsys activity activities | grep -i mResumedActivity | head -2'));
 sh(`adb forward tcp:9222 localabstract:${sock}`);
 const pages = await (await fetch('http://127.0.0.1:9222/json', { signal: AbortSignal.timeout(20000) })).json();
 const page = pages.find((p) => p.type === 'page');
