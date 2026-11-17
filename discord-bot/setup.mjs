@@ -27,7 +27,7 @@ async function api(method, path, body, reason = 'AFTERNET server setup') {
 }
 
 // ── links ──
-const SITE = 'https://afternet-liard.vercel.app';
+const SITE = 'https://afternet.app';
 const GH = 'https://github.com/MrPreston123/AFTERNET';
 const REL = `${GH}/releases/latest`;
 const L = {
@@ -50,6 +50,7 @@ const LAYOUT = [
     { name: '📜│rules', type: 0, ro: true, topic: 'Read before posting.' },
     { name: '📣│announcements', type: 5, ro: true, topic: 'Releases, updates and $AFTERNET news.' },
     { name: '⬇️│downloads', type: 0, ro: true, topic: `Windows + Android installers · ${L.download}` },
+    { name: '🎭│pick-roles', type: 0, ro: true, topic: 'Tap a button to add or remove a role.' },
     { name: '🧩│open-source', type: 0, ro: true, topic: `Every line is public: ${L.gh}` },
   ] },
   { cat: '━━ COMMUNITY ━━', channels: [
@@ -261,7 +262,9 @@ const privOverwrites = (extraRoles = []) => [
   { id: me.id, type: 1, allow: bits('VIEW', 'SEND', 'HISTORY', 'EMBED', 'MANAGE_MSG', 'CONNECT'), deny: '0' },
   ...[...staff, ...extraRoles].map((id) => ({ id, type: 0, allow: bits('VIEW', 'SEND', 'HISTORY', 'CONNECT', 'SPEAK'), deny: '0' })),
 ];
-if (!archive) {
+const keep = (c) => c.type === 4 || c.type === 20 || newNames.has(c.name) || c.name.startsWith('ticket-');
+const toArchive = channels.filter((c) => !keep(c));
+if (!archive && toArchive.length) {
   archive = await api('POST', `/guilds/${GUILD}/channels`, { name: ARCHIVE, type: 4, permission_overwrites: privOverwrites(), position: 999 });
   console.log('+ archive category');
 }
@@ -314,7 +317,7 @@ if (guild.features.includes('COMMUNITY')) {
 channels = await api('GET', `/guilds/${GUILD}/channels`);
 let moved = 0;
 for (const c of channels) {
-  if (c.type === 4 || newNames.has(c.name) || c.parent_id === archive.id) continue;
+  if (!archive || keep(c) || c.parent_id === archive.id) continue;
   try {
     await api('PATCH', `/channels/${c.id}`, { parent_id: archive.id, lock_permissions: true }, 'Archived during AFTERNET rebrand');
     moved++;
@@ -325,7 +328,7 @@ console.log(`~ archived ${moved} old channels`);
 for (const c of channels.filter((x) => x.type === 4 && !newNames.has(x.name))) {
   try { await api('PATCH', `/channels/${c.id}`, { permission_overwrites: privOverwrites(), position: 998 }); } catch {}
 }
-await api('PATCH', `/channels/${archive.id}`, { position: 999 }).catch(() => {});
+if (archive) await api('PATCH', `/channels/${archive.id}`, { position: 999 }).catch(() => {});
 
 // Messages (bot posts once; re-running edits its own message instead of duplicating)
 const state = existsSync(join(HERE, 'state.json')) ? JSON.parse(readFileSync(join(HERE, 'state.json'), 'utf8')) : { messages: {} };
