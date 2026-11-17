@@ -1,0 +1,62 @@
+# Installs the Android app on an emulator and drives it end to end (guides, Wikipedia, maps + GPS,
+# local AI, airplane mode). Screenshots + results are pushed to the `android-test-results` branch.
+name: Android device test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/android-test.yml', 'scripts/android-e2e.mjs']
+
+permissions:
+  contents: write
+
+jobs:
+  emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+        env:
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+      - run: npm run build
+      - run: npx cap sync android
+      - name: Build debug APK
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon && cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/AFTERNET.apk"
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          ram-size: 4096M
+          disk-size: 6000M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          disable-animations: true
+          script: adb install -r AFTERNET.apk && node scripts/android-e2e.mjs
+      - name: Publish results
+        if: always()
+        run: |
+          mkdir -p /tmp/res && cp -r test-results/* /tmp/res/ 2>/dev/null || true
+          cd /tmp/res
+          git init -q -b android-test-results
+          git config user.name "AFTERNET CI"
+          git config user.email "ci@afternet.local"
+          git add -A && git commit -qm "Android test results ${{ github.run_number }}" || exit 0
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" android-test-results
