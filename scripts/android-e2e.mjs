@@ -15,10 +15,35 @@ const log = (name, data) => {
   writeFileSync(`${OUT}/results.json`, JSON.stringify(results, null, 2));
 };
 const shot = (name) => {
-  execSync(`adb exec-out screencap -p > ${OUT}/${name}.png`);
+  try {
+    sh('adb shell screencap -p /sdcard/afn.png');
+    sh(`adb pull /sdcard/afn.png ${OUT}/${name}.png`);
+  } catch (e) {
+    console.log('screenshot failed', name, String(e).slice(0, 200));
+  }
 };
+// Always leave diagnostics behind, even if a step throws.
+process.on('uncaughtException', finish);
+process.on('unhandledRejection', finish);
+function finish(err) {
+  try {
+    results.error = String(err?.stack || err);
+    results.crash = sh('adb logcat -d -b crash | tail -60');
+    results.logcat = sh('adb logcat -d | grep -iE "afternet|chromium|Capacitor|AndroidRuntime|FATAL" | tail -120');
+    results.activity = sh('adb shell dumpsys activity activities | grep -iE "mResumedActivity|topResumedActivity" | head -5');
+  } catch {}
+  writeFileSync(`${OUT}/results.json`, JSON.stringify(results, null, 2));
+  console.error('E2E FAILED', err);
+  process.exit(1);
+}
 
 // ── launch ──
+sh('adb wait-for-device');
+for (let i = 0; i < 60 && sh('adb shell getprop sys.boot_completed') !== '1'; i++) await sleep(2000);
+sh('adb shell input keyevent 224'); // wake
+sh('adb shell wm dismiss-keyguard || true');
+sh('adb shell input keyevent 82'); // unlock
+await sleep(3000);
 sh(`adb shell pm grant ${PKG} android.permission.ACCESS_FINE_LOCATION`);
 sh(`adb shell pm grant ${PKG} android.permission.ACCESS_COARSE_LOCATION`);
 sh('adb emu geo fix -8.5376 37.1363'); // Portimão
@@ -32,7 +57,7 @@ for (let i = 0; i < 20 && !sock; i++) {
   sock = sh('adb shell cat /proc/net/unix').split('\n').map((l) => l.match(/@(webview_devtools_remote_\d+)/)?.[1]).find(Boolean) || '';
   if (!sock) await sleep(2000);
 }
-if (!sock) throw new Error('WebView devtools socket not found (is WebView debugging enabled?)');
+if (!sock) throw new Error('WebView devtools socket not found. Resumed: ' + sh('adb shell dumpsys activity activities | grep -i mResumedActivity | head -2'));
 sh(`adb forward tcp:9222 localabstract:${sock}`);
 const pages = await (await fetch('http://127.0.0.1:9222/json')).json();
 const page = pages.find((p) => p.type === 'page');
