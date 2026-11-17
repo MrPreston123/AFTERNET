@@ -10,10 +10,11 @@ export const SITE = {
 };
 
 export const TOKEN = {
-  /** Contract address. Leave empty to show "Coming soon". */
-  ca: '',
-  buyUrl: '',
-  chartUrl: '',
+  /**
+   * Live launch status. The CA, pump.fun and chart links come from here automatically the moment
+   * the coin exists on-chain (the CA is kept private until then). See discord-bot/api/token.js.
+   */
+  statusApi: 'https://afternet-discord.vercel.app/api/token',
   xUrl: '',
   telegramUrl: '',
 };

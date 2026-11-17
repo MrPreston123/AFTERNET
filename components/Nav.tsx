@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import Logo from './Logo';
 import InstallButton from './InstallButton';
 import { SITE } from '@/lib/config';
+import { useToken } from '@/lib/token';
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const token = useToken();
   useEffect(() => {
     const f = () => setScrolled(scrollY > 40);
     f();
@@ -33,6 +35,7 @@ export default function Nav() {
         {links.map(([l, h]) => (
           <a key={h} href={h} onClick={() => setOpen(false)}>
             {l}
+            {l === SITE.ticker && token?.live ? <i className="nav-live" title="Live on pump.fun" /> : null}
           </a>
         ))}
         <a href={SITE.github} target="_blank" rel="noreferrer" className="nav-gh" onClick={() => setOpen(false)}>

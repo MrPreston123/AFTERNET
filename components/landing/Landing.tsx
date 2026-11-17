@@ -1,5 +1,6 @@
 'use client';
 import DiscordCard from '../Discord';
+import { useToken, fmtUsd, fmtPrice } from '@/lib/token';
 import dynamic from 'next/dynamic';
 import { useRef, useState } from 'react';
 import Nav from '../Nav';
@@ -321,20 +322,35 @@ function Download() {
 /* ─────────────── TOKEN ─────────────── */
 function Token() {
   const [copied, setCopied] = useState(false);
+  const t = useToken();
+  const live = !!t?.live && !!t.ca;
+  const up = (t?.change24h ?? 0) >= 0;
   return (
     <section className="token" data-scene="token" id="token">
       <div className="wrap token-inner">
         <p className="kicker rv">The community</p>
         <h2 className="token-ticker rv">{SITE.ticker}</h2>
+        <div className={`token-status rv ${live ? 'is-live' : ''}`}>
+          <i />
+          {live ? 'Live on pump.fun' : t ? 'Launching soon on pump.fun' : 'Checking launch status…'}
+        </div>
         <p className="muted rv token-lede">The token behind the movement to keep knowledge offline, open and in everyone&apos;s hands.</p>
+        {live && (t.marketCap || t.price) ? (
+          <div className="token-stats rv">
+            {t.marketCap ? <div><small>Market cap</small><b>{fmtUsd(t.marketCap)}</b></div> : null}
+            {t.price ? <div><small>Price</small><b>{fmtPrice(t.price)}</b></div> : null}
+            {t.change24h != null ? <div><small>24h</small><b className={up ? 'up' : 'down'}>{up ? '+' : ''}{t.change24h.toFixed(1)}%</b></div> : null}
+          </div>
+        ) : null}
         <div className="ca rv">
           <span className="ca-label">CA</span>
-          <code>{TOKEN.ca || 'Coming soon'}</code>
-          {TOKEN.ca && (
+          <code>{live ? t.ca : 'Revealed the moment we go live'}</code>
+          {live && (
             <button
               className="ca-copy"
+              aria-label="Copy contract address"
               onClick={() => {
-                navigator.clipboard?.writeText(TOKEN.ca);
+                navigator.clipboard?.writeText(t.ca!);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 1500);
               }}
@@ -343,14 +359,21 @@ function Token() {
             </button>
           )}
         </div>
+        <p className="muted small token-note rv">
+          {live ? 'Only trust this CA. It is the same here, in our Discord announcement and on GitHub releases.' : 'This page updates by itself at launch. Join the Discord to get pinged.'}
+        </p>
         <div className="token-links rv">
-          {[
-            ['Buy', TOKEN.buyUrl],
-            ['Chart', TOKEN.chartUrl],
+          {live ? (
+            <a href={t.buy!} target="_blank" rel="noreferrer" className="btn btn-red btn-sm"><span>Buy on pump.fun</span></a>
+          ) : (
+            <span className="btn btn-ghost btn-sm is-off">Buy</span>
+          )}
+          {([
+            ['Chart', live ? t.chart : ''],
             ['Discord', SITE.discord],
             ['X / Twitter', TOKEN.xUrl],
             ['Telegram', TOKEN.telegramUrl],
-          ].map(([l, u]) =>
+          ] as [string, string | null][]).map(([l, u]) =>
             u ? (
               <a key={l} href={u} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">{l}</a>
             ) : (

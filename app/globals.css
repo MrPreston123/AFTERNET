@@ -369,3 +369,18 @@ html.has-crosshair, html.has-crosshair * { cursor: none !important; }
   .discord-card { grid-template-columns: 1fr; text-align: left; gap: 14px; padding: 22px 18px; }
   .discord-card .btn { justify-self: stretch; justify-content: center; }
 }
+
+/* ── token launch status ── */
+.token-status { display: inline-flex; align-items: center; gap: 10px; margin-top: 18px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line-2); background: rgba(0,0,0,.55); font: 500 11px/1 var(--f-m); letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.75); }
+.token-status i { width: 8px; height: 8px; border-radius: 50%; background: #f5c542; box-shadow: 0 0 10px #f5c542; animation: tsPulse 1.6s ease-in-out infinite; }
+.token-status.is-live { color: #fff; border-color: rgba(61,220,132,.5); }
+.token-status.is-live i { background: #3ddc84; box-shadow: 0 0 12px #3ddc84; }
+@keyframes tsPulse { 50% { opacity: .35; } }
+.token-stats { display: flex; gap: 12px; margin: 0 0 22px; flex-wrap: wrap; justify-content: center; }
+.token-stats div { min-width: 120px; padding: 12px 18px; border-radius: 14px; border: 1px solid var(--line-2); background: rgba(0,0,0,.5); display: grid; gap: 6px; }
+.token-stats small { font: 500 10px/1 var(--f-m); letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+.token-stats b { font: 400 20px/1 var(--f-d); }
+.token-stats b.up { color: #3ddc84; }
+.token-stats b.down { color: #ff4d5e; }
+.token-note { margin-top: 14px; max-width: 460px; }
+.nav-live { display: inline-block; width: 7px; height: 7px; margin-left: 6px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 8px #3ddc84; vertical-align: middle; }
