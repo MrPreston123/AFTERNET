@@ -4,7 +4,7 @@ export const SITE = {
   ticker: '$AFTERNET',
   tagline: 'An offline survival system for a post-internet world',
   /** Public source repository. The whole system is open source. */
-  github: 'https://github.com/afternet/afternet',
+  github: 'https://github.com/MrPreston123/AFTERNET',
 };
 
 export const TOKEN = {
