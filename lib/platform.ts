@@ -27,6 +27,6 @@ export function detectOS(): OS {
 const REL = `${SITE.github}/releases/latest/download`;
 export const DOWNLOADS = {
   windows: { url: `${REL}/AFTERNET-Setup.exe`, label: 'Install for Windows', file: 'AFTERNET-Setup.exe', size: '≈ 135 MB' },
-  android: { url: `${REL}/AFTERNET.apk`, label: 'Install for Android', file: 'AFTERNET.apk', size: '≈ 25 MB' },
+  android: { url: `${REL}/AFTERNET.apk`, label: 'Install for Android', file: 'AFTERNET.apk', size: '≈ 21 MB' },
   releases: `${SITE.github}/releases/latest`,
 };
