@@ -5,7 +5,9 @@ import { waitUntil } from '@vercel/functions';
 
 const API = 'https://discord.com/api/v10';
 const RED = 0xe5182b;
-const STAFF_ROLES = ['FOUNDER', 'BUILDER', 'ADMIN', 'Support'];
+const STAFF_ROLES = ['FOUNDER', 'BUILDER', 'ADMIN', 'Moderator', 'Support'];
+// Only these can be self-assigned from the #pick-roles buttons.
+const PICKABLE = ['🩹 Medic', '🛰️ Navigator', '🌱 Homesteader', '🧠 AI Tinkerer', '📻 Comms', '🛠️ Builder', '🔔 Updates', '🎙️ AMA', '🪙 Token Alerts'];
 const TICKET_CAT = '━━ TICKETS ━━';
 const LOG = '🧾│ticket-logs';
 const EPHEMERAL = 64;
@@ -134,6 +136,19 @@ export async function POST(req) {
     if (i.member.user.id !== owner && !staff) return json({ type: 4, data: { content: 'Only the ticket owner or the team can close it.', flags: EPHEMERAL } });
     waitUntil(closeTicket(i, owner).catch((e) => console.error(e)));
     return json({ type: 4, data: { content: '🔒 Closing ticket and saving a transcript…' } });
+  }
+  if (i.type === 3 && id?.startsWith('role:')) {
+    const roleId = id.slice(5);
+    const role = (await d('GET', `/guilds/${i.guild_id}/roles`).catch(() => [])).find((r) => r.id === roleId);
+    if (!role || !PICKABLE.includes(role.name)) return json({ type: 4, data: { content: 'That role cannot be self-assigned.', flags: EPHEMERAL } });
+    const has = (i.member.roles || []).includes(roleId);
+    try {
+      await d(has ? 'DELETE' : 'PUT', `/guilds/${i.guild_id}/members/${i.member.user.id}/roles/${roleId}`);
+      return json({ type: 4, data: { content: has ? `Removed **${role.name}**.` : `Added **${role.name}**. Tap again to remove it.`, flags: EPHEMERAL } });
+    } catch (e) {
+      console.error(e);
+      return json({ type: 4, data: { content: 'Could not update your roles. Please tell the team.', flags: EPHEMERAL } });
+    }
   }
   return json({ type: 4, data: { content: 'Unknown action.', flags: EPHEMERAL } });
 }
