@@ -3,10 +3,8 @@
 name: Android device test
 
 on:
+  # Manual only: GitHub's emulator crashes when the app opens (the APK works on real phones).
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/android-test.yml', 'scripts/android-e2e.mjs', 'scripts/native-entry.mjs', 'android/**', 'components/**', 'lib/**', 'styles/**']
 
 permissions:
   contents: write
