@@ -40,8 +40,10 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - name: Run on emulator
+        timeout-minutes: 45
         uses: reactivecircus/android-emulator-runner@v2
         with:
+          emulator-boot-timeout: 900
           api-level: 34
           target: google_apis
           arch: x86_64
@@ -50,11 +52,17 @@ jobs:
           disk-size: 6000M
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
           disable-animations: true
-          script: adb install -r AFTERNET.apk && node scripts/android-e2e.mjs
+          script: adb install -r AFTERNET.apk && timeout 38m node scripts/android-e2e.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-test-results
+          path: test-results
+          if-no-files-found: warn
       - name: Publish results
         if: always()
         run: |
-          mkdir -p /tmp/res && cp -r test-results/* /tmp/res/ 2>/dev/null || true
+          mkdir -p /tmp/res && cp -r test-results/* /tmp/res/ 2>/dev/null || echo '{"error":"no results written (emulator did not reach the test script)"}' > /tmp/res/results.json
           cd /tmp/res
           git init -q -b android-test-results
           git config user.name "AFTERNET CI"

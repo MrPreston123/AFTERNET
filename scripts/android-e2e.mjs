@@ -6,7 +6,8 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 const OUT = 'test-results';
 mkdirSync(OUT, { recursive: true });
 const PKG = 'app.afternet.offline';
-const sh = (c) => execSync(c, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+const sh = (c, timeout = 90000) => execSync(c, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout }).trim();
+const trySh = (c, timeout) => { try { return sh(c, timeout); } catch (e) { console.log('cmd failed:', c, String(e).slice(0, 200)); return ''; } };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const results = { started: new Date().toISOString(), steps: [] };
 const log = (name, data) => {
@@ -24,13 +25,16 @@ const shot = (name) => {
 };
 // Always leave diagnostics behind, even if a step throws.
 process.on('uncaughtException', finish);
+let finished = false;
 process.on('unhandledRejection', finish);
 function finish(err) {
+  if (finished) return;
+  finished = true;
   try {
     results.error = String(err?.stack || err);
-    results.crash = sh('adb logcat -d -b crash | tail -60');
-    results.logcat = sh('adb logcat -d | grep -iE "afternet|chromium|Capacitor|AndroidRuntime|FATAL" | tail -120');
-    results.activity = sh('adb shell dumpsys activity activities | grep -iE "mResumedActivity|topResumedActivity" | head -5');
+    results.crash = trySh('adb logcat -d -b crash | tail -60', 30000);
+    results.logcat = trySh('adb logcat -d | grep -iE "afternet|chromium|Capacitor|AndroidRuntime|FATAL" | tail -120');
+    results.activity = trySh('adb shell dumpsys activity activities | grep -iE "mResumedActivity|topResumedActivity" | head -5');
   } catch {}
   writeFileSync(`${OUT}/results.json`, JSON.stringify(results, null, 2));
   console.error('E2E FAILED', err);
@@ -38,16 +42,21 @@ function finish(err) {
 }
 
 // ── launch ──
-sh('adb wait-for-device');
-for (let i = 0; i < 60 && sh('adb shell getprop sys.boot_completed') !== '1'; i++) await sleep(2000);
-sh('adb shell input keyevent 224'); // wake
-sh('adb shell wm dismiss-keyguard || true');
-sh('adb shell input keyevent 82'); // unlock
+log('script-start', {});
+// Hard stop well before the job limit so results always get published.
+setTimeout(() => finish(new Error('global timeout (35 min)')), 35 * 60000).unref();
+sh('adb wait-for-device', 120000);
+for (let i = 0; i < 60 && trySh('adb shell getprop sys.boot_completed', 15000) !== '1'; i++) await sleep(2000);
+log('booted', {});
+trySh('adb shell input keyevent 224'); // wake
+trySh('adb shell wm dismiss-keyguard');
+trySh('adb shell input keyevent 82'); // unlock
 await sleep(3000);
-sh(`adb shell pm grant ${PKG} android.permission.ACCESS_FINE_LOCATION`);
-sh(`adb shell pm grant ${PKG} android.permission.ACCESS_COARSE_LOCATION`);
-sh('adb emu geo fix -8.5376 37.1363'); // Portimão
-sh(`adb shell am start -W -n ${PKG}/.MainActivity`);
+trySh(`adb shell pm grant ${PKG} android.permission.ACCESS_FINE_LOCATION`);
+trySh(`adb shell pm grant ${PKG} android.permission.ACCESS_COARSE_LOCATION`);
+trySh('adb emu geo fix -8.5376 37.1363', 20000); // Portimão
+log('launching', {});
+trySh(`adb shell am start -n ${PKG}/.MainActivity`, 30000);
 await sleep(12000);
 shot('01-launch');
 
@@ -59,7 +68,7 @@ for (let i = 0; i < 20 && !sock; i++) {
 }
 if (!sock) throw new Error('WebView devtools socket not found. Resumed: ' + sh('adb shell dumpsys activity activities | grep -i mResumedActivity | head -2'));
 sh(`adb forward tcp:9222 localabstract:${sock}`);
-const pages = await (await fetch('http://127.0.0.1:9222/json')).json();
+const pages = await (await fetch('http://127.0.0.1:9222/json', { signal: AbortSignal.timeout(20000) })).json();
 const page = pages.find((p) => p.type === 'page');
 const ws = new WebSocket(page.webSocketDebuggerUrl);
 let id = 0;
@@ -71,7 +80,8 @@ ws.onmessage = (m) => {
     pend.delete(d.id);
   }
 };
-await new Promise((r) => (ws.onopen = r));
+await Promise.race([new Promise((r) => (ws.onopen = r)), sleep(20000).then(() => { throw new Error('devtools websocket did not open'); })]);
+log('devtools', { url: page.url });
 const call = (method, params = {}) => new Promise((r) => { pend.set(++id, r); ws.send(JSON.stringify({ id, method, params })); });
 const ev = async (expr, timeout = 60000) => {
   const d = await Promise.race([call('Runtime.evaluate', { expression: `(async()=>{${expr}})()`, awaitPromise: true, returnByValue: true }), sleep(timeout).then(() => ({ timeout: true }))]);
@@ -130,7 +140,7 @@ await sleep(800);
 await ev(`document.querySelector('.ai-go button')?.click(); return 1;`);
 const t0 = Date.now();
 let status = '';
-while (Date.now() - t0 < 20 * 60000) {
+while (Date.now() - t0 < 12 * 60000) {
   status = (await ev(`return document.querySelector('.ai-go')?.innerText || '';`, 15000)) || '';
   if (/running|couldn/i.test(status)) break;
   await sleep(10000);
@@ -141,7 +151,7 @@ if (/running/i.test(status)) {
   const q0 = Date.now();
   await ev(`const ta=document.querySelector('.chat-input textarea'); const set=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set; set.call(ta,'How do I purify stream water?'); ta.dispatchEvent(new Event('input',{bubbles:true})); await new Promise(r=>setTimeout(r,300)); document.querySelector('.chat-input button[type=submit]').click(); return 1;`);
   await sleep(5000);
-  while (Date.now() - q0 < 6 * 60000) {
+  while (Date.now() - q0 < 5 * 60000) {
     const busy = await ev(`return !!document.querySelector('.chat-input button[aria-label=Stop]');`, 15000);
     if (!busy) break;
     await sleep(5000);
@@ -175,3 +185,5 @@ results.finished = new Date().toISOString();
 writeFileSync(`${OUT}/results.json`, JSON.stringify(results, null, 2));
 ws.close();
 console.log('done');
+finished = true;
+process.exit(0);
