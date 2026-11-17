@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['.github/workflows/android-test.yml', 'scripts/android-e2e.mjs']
+    paths: ['.github/workflows/android-test.yml', 'scripts/android-e2e.mjs', 'scripts/native-entry.mjs', 'android/**', 'components/**', 'lib/**', 'styles/**']
 
 permissions:
   contents: write
@@ -29,6 +29,7 @@ jobs:
         env:
           ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
       - run: npm run build
+      - run: node scripts/native-entry.mjs
       - run: npx cap sync android
       - name: Build debug APK
         working-directory: android

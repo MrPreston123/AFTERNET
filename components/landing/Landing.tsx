@@ -5,6 +5,7 @@ import Nav from '../Nav';
 import Logo from '../Logo';
 import Icon from '../Icon';
 import InstallButton from '../InstallButton';
+import DownloadCards from '../DownloadCards';
 import { useOnline } from '@/lib/install';
 import { sceneState } from '@/lib/scene-state';
 import { SITE, TOKEN } from '@/lib/config';
@@ -302,6 +303,20 @@ function GearTeaser() {
   );
 }
 
+/* ─────────────── DOWNLOAD ─────────────── */
+function Download() {
+  return (
+    <section className="download-sec" data-scene="gear" id="download">
+      <div className="wrap">
+        <p className="kicker rv">Download // free & open source</p>
+        <h2 className="h-l rv dl-title">Get it <span className="red">before you need it.</span></h2>
+        <p className="muted rv dl-lede">Install AFTERNET while you still have a connection. After that it runs entirely from your device.</p>
+        <DownloadCards />
+      </div>
+    </section>
+  );
+}
+
 /* ─────────────── TOKEN ─────────────── */
 function Token() {
   const [copied, setCopied] = useState(false);
@@ -387,6 +402,7 @@ export default function Landing() {
         <Modules />
         <How />
         <GearTeaser />
+        <Download />
         <Token />
         <Final />
       </main>

@@ -19,6 +19,7 @@ export default function Nav() {
     ['Local AI', '/app/#ai'],
     ['Maps', '/app/#maps'],
     ['Gear', '/gear/'],
+    ['Download', '/download/'],
     [SITE.ticker, '/#token'],
   ];
   return (

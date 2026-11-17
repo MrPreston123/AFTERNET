@@ -11,3 +11,4 @@ android/.gradle
 
 .vercel
 test-results
+out-native

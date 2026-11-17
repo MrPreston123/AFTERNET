@@ -63,8 +63,9 @@ log('device', { model: sh('adb shell getprop ro.product.model'), android: sh('ad
 log('page', { url: page.url, title: page.title });
 
 log('home', await ev(`
+  await new Promise(r => setTimeout(r, 1500));
   return { path: location.pathname, native: !!window.Capacitor?.isNativePlatform?.(), title: document.querySelector('.home-title')?.textContent,
-    installButtons: document.querySelectorAll('.sys-right .btn').length, tabbar: getComputedStyle(document.querySelector('.sys-tabbar')).display,
+    installButtons: document.querySelectorAll('.sys-right .btn').length, tabbar: document.querySelector('.sys-tabbar') ? getComputedStyle(document.querySelector('.sys-tabbar')).display : 'missing',
     width: innerWidth, overflow: document.documentElement.scrollWidth > innerWidth, gpu: !!navigator.gpu };`));
 shot('02-home');
 await ev(`scrollTo(0, 900); return 1;`);

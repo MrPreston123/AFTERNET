@@ -6,3 +6,4 @@ dist-electron
 android
 electron
 *.tsbuildinfo
+out-native
