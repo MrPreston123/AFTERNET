@@ -151,6 +151,13 @@ export default function Downloads() {
           <p className="muted">MIT licensed. Read the code, report issues or host your own copy: <a href={SITE.github} target="_blank" rel="noreferrer" className="red">{SITE.github.replace('https://', '')}</a></p>
         </div>
       </section>
+      <section className="note-card">
+        <Icon name="external" size={22} />
+        <div>
+          <b>Help & community</b>
+          <p className="muted">Questions or problems? Open a private support ticket in the <a href={SITE.discord} target="_blank" rel="noreferrer" className="red">AFTERNET Discord</a>.</p>
+        </div>
+      </section>
       <p className="disclaimer">Map data © OpenStreetMap contributors via OpenFreeMap. Wikipedia text CC BY-SA 4.0. AI runs on llama.cpp (wllama, MIT); models under their own licences (Qwen, Llama 3.2).</p>
     </div>
   );

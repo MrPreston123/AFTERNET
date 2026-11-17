@@ -7,3 +7,4 @@ android
 electron
 *.tsbuildinfo
 out-native
+discord-bot

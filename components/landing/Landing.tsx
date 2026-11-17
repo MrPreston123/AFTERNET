@@ -1,4 +1,5 @@
 'use client';
+import DiscordCard from '../Discord';
 import dynamic from 'next/dynamic';
 import { useRef, useState } from 'react';
 import Nav from '../Nav';
@@ -346,6 +347,7 @@ function Token() {
           {[
             ['Buy', TOKEN.buyUrl],
             ['Chart', TOKEN.chartUrl],
+            ['Discord', SITE.discord],
             ['X / Twitter', TOKEN.xUrl],
             ['Telegram', TOKEN.telegramUrl],
           ].map(([l, u]) =>
@@ -376,11 +378,15 @@ function Final() {
           </a>
           <InstallButton />
         </div>
+        <div className="rv final-discord"><DiscordCard /></div>
       </div>
       <footer className="foot">
         <span>© {new Date().getFullYear()} AFTERNET · {SITE.ticker}</span>
         <span className="muted">Guides are general information, not a substitute for professional training. Gear links may earn a commission.</span>
-        <a href={SITE.github} target="_blank" rel="noreferrer">Open source on GitHub</a>
+        <span className="foot-links">
+          <a href={SITE.discord} target="_blank" rel="noreferrer">Discord</a>
+          <a href={SITE.github} target="_blank" rel="noreferrer">Open source on GitHub</a>
+        </span>
       </footer>
     </section>
   );

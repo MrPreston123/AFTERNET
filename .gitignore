@@ -12,3 +12,9 @@ android/.gradle
 .vercel
 test-results
 out-native
+
+# secrets
+.env
+.env.*
+!.env.example
+discord-bot/state.json

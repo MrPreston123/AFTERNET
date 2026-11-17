@@ -4,6 +4,7 @@ import Icon from './Icon';
 import { useInstall } from '@/lib/install';
 import { DOWNLOADS, detectOS, type OS } from '@/lib/platform';
 import { SITE } from '@/lib/config';
+import DiscordCard from './Discord';
 
 type Release = { tag: string; date: string; sizes: Record<string, number> };
 
@@ -160,6 +161,8 @@ export default function DownloadCards() {
         <a href={SITE.github} target="_blank" rel="noreferrer">Source code</a>
       </p>
 
+      <DiscordCard compact />
+
       {help && (
         <div className="modal" role="dialog" aria-modal="true" onClick={() => setHelp(null)}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
@@ -181,6 +184,7 @@ export default function DownloadCards() {
                 </>
               )}
             </ol>
+            <p className="muted small">Stuck? Open a support ticket in our <a href={SITE.discord} target="_blank" rel="noreferrer" className="red">Discord</a>.</p>
             <button className="btn btn-ghost btn-sm" onClick={() => setHelp(null)}><span>Got it</span></button>
           </div>
         </div>

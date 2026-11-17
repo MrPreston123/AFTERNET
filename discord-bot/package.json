@@ -1,0 +1,13 @@
+{
+  "name": "afternet-discord-bot",
+  "private": true,
+  "type": "module",
+  "description": "AFTERNET Discord: server setup + ticket bot",
+  "scripts": {
+    "setup": "node setup.mjs",
+    "start": "node bot.mjs"
+  },
+  "dependencies": {
+    "discord.js": "14.28.1"
+  }
+}

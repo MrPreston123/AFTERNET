@@ -5,6 +5,8 @@ export const SITE = {
   tagline: 'An offline survival system for a post-internet world',
   /** Public source repository. The whole system is open source. */
   github: 'https://github.com/MrPreston123/AFTERNET',
+  /** Permanent invite to the official Discord (support tickets, downloads, news). */
+  discord: 'https://discord.gg/376CCK7MsW',
 };
 
 export const TOKEN = {
