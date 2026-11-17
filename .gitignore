@@ -7,3 +7,6 @@ public/wllama
 dist-electron
 android/app/build
 android/.gradle
+.vercel
+
+.vercel

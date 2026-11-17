@@ -9,6 +9,7 @@ const body = IBM_Plex_Sans({ weight: ['400', '500', '600'], subsets: ['latin'], 
 const mono = JetBrains_Mono({ weight: ['400', '500'], subsets: ['latin'], variable: '--f-mono', display: 'swap' });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://afternet-liard.vercel.app'),
   title: 'AFTERNET · Offline Survival System',
   description:
     'What happens when the internet goes dark? Offline Wikipedia, a survival library, a local AI and offline GPS maps, all running on your own device. No servers. No subscriptions. No internet required.',
