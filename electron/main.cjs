@@ -17,6 +17,8 @@ if (!app.requestSingleInstanceLock()) app.quit();
 
 // Enable WebGPU so the local AI can use the graphics card.
 app.commandLine.appendSwitch('enable-unsafe-webgpu');
+// Use the Windows location service (GPS / Wi-Fi) for geolocation, no Google API key needed.
+app.commandLine.appendSwitch('enable-features', 'WinrtGeolocationImplementation');
 
 function resolveFile(urlPath) {
   let p = decodeURIComponent(urlPath.split('?')[0]);
@@ -63,7 +65,9 @@ function createWindow() {
     }
   });
   // Location access for offline GPS (Windows location service).
-  win.webContents.session.setPermissionRequestHandler((_wc, perm, cb) => cb(['geolocation', 'clipboard-sanitized-write', 'persistent-storage'].includes(perm)));
+  const allowed = ['geolocation', 'clipboard-sanitized-write', 'persistent-storage'];
+  win.webContents.session.setPermissionRequestHandler((_wc, perm, cb) => cb(allowed.includes(perm)));
+  win.webContents.session.setPermissionCheckHandler((_wc, perm) => allowed.includes(perm));
   return win;
 }
 

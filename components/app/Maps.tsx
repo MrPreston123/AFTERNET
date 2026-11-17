@@ -149,6 +149,32 @@ export default function Maps({ active }: { active: boolean }) {
     }
   }, [wps, ready]);
 
+  const place = (f: Fix) => {
+    setFix(f);
+    setGpsErr('');
+    const ml = lib.current, m = map.current;
+    if (!ml || !m) return;
+    if (!me.current) {
+      const el = document.createElement('div');
+      el.className = 'me-marker';
+      el.innerHTML = '<i></i><b></b>';
+      me.current = new ml.Marker({ element: el }).setLngLat([f.lon, f.lat]).addTo(m);
+      m.flyTo({ center: [f.lon, f.lat], zoom: Math.max(m.getZoom(), 15) });
+    } else {
+      me.current.setLngLat([f.lon, f.lat]);
+      if (follow.current) m.easeTo({ center: [f.lon, f.lat], duration: 600 });
+    }
+  };
+
+  const manual = () => {
+    const v = prompt('Enter your position as "latitude, longitude" (e.g. 37.1363, -8.5376)', fix ? `${fix.lat.toFixed(5)}, ${fix.lon.toFixed(5)}` : '');
+    if (!v) return;
+    const [lat, lon] = v.split(/[,\s]+/).filter(Boolean).map(Number);
+    if (!isFinite(lat) || !isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) return setGpsErr('Could not read those coordinates. Use the format 37.1363, -8.5376.');
+    follow.current = true;
+    place({ lat, lon, acc: 0, alt: null, speed: null, heading: null });
+  };
+
   const locate = () => {
     setGpsErr('');
     if (!('geolocation' in navigator)) return setGpsErr('This device has no location service.');
@@ -161,22 +187,17 @@ export default function Maps({ active }: { active: boolean }) {
     watch.current = navigator.geolocation.watchPosition(
       (p) => {
         const f: Fix = { lat: p.coords.latitude, lon: p.coords.longitude, acc: p.coords.accuracy, alt: p.coords.altitude, speed: p.coords.speed, heading: p.coords.heading };
-        setFix(f);
-        const ml = lib.current, m = map.current;
-        if (!ml || !m) return;
-        if (!me.current) {
-          const el = document.createElement('div');
-          el.className = 'me-marker';
-          el.innerHTML = '<i></i><b></b>';
-          me.current = new ml.Marker({ element: el }).setLngLat([f.lon, f.lat]).addTo(m);
-          m.flyTo({ center: [f.lon, f.lat], zoom: Math.max(m.getZoom(), 15) });
-        } else {
-          me.current.setLngLat([f.lon, f.lat]);
-          if (follow.current) m.easeTo({ center: [f.lon, f.lat], duration: 600 });
-        }
+        place(f);
       },
       (e) => {
-        setGpsErr(e.code === 1 ? 'Location permission denied. Allow location for AFTERNET in your browser or device settings.' : 'Waiting for a GPS fix. Go outside or near a window.');
+        const win = /Windows/i.test(navigator.userAgent);
+        setGpsErr(
+          e.code === 1
+            ? win ? 'Location is blocked. Turn on Windows Settings → Privacy & security → Location (and "Let desktop apps access your location"), then try again.' : 'Location permission denied. Allow location for AFTERNET in your browser or phone settings, then try again.'
+            : e.code === 2
+              ? win ? 'No position available. Turn on Location in Windows Settings → Privacy & security → Location. You can also set your position by hand below.' : 'No position available yet. Turn on location/GPS on your device, or set your position by hand below.'
+              : 'Waiting for a GPS fix. Go outside or near a window.',
+        );
         if (e.code === 1 && watch.current != null) {
           navigator.geolocation.clearWatch(watch.current);
           watch.current = null;
@@ -293,6 +314,7 @@ export default function Maps({ active }: { active: boolean }) {
             <p className="muted small">GPS needs no signal and no internet: your device listens to satellites directly.</p>
           )}
           {gpsErr && <p className="err small">{gpsErr}</p>}
+          <button className="link small" onClick={manual}>Set position by hand</button>
         </div>
 
         <div className="mp-sec">
