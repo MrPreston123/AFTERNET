@@ -54,7 +54,7 @@ trySh('adb shell input keyevent 82'); // unlock
 await sleep(3000);
 trySh(`adb shell pm grant ${PKG} android.permission.ACCESS_FINE_LOCATION`);
 trySh(`adb shell pm grant ${PKG} android.permission.ACCESS_COARSE_LOCATION`);
-trySh('adb emu geo fix -8.5376 37.1363', 20000); // Portimão
+log('pre-launch', { devices: trySh('adb devices -l', 10000) });
 log('launching', {});
 trySh(`adb shell am start -n ${PKG}/.MainActivity`, 30000);
 await sleep(12000);
@@ -65,7 +65,12 @@ let sock = '';
 const revive = () => { trySh('adb reconnect offline', 20000); trySh('adb wait-for-device', 120000); };
 for (let i = 0; i < 30 && !sock; i++) {
   const st = trySh('adb get-state', 10000);
-  if (st !== 'device') { console.log('adb state:', st || 'offline', '- reconnecting'); revive(); await sleep(3000); continue; }
+  if (st !== 'device') {
+    console.log('adb state:', st || 'offline', '- reconnecting');
+    if (i === 0 || i === 5) log('offline-diag', { attempt: i, devices: trySh('adb devices -l', 10000), emulator: trySh('pgrep -af qemu | head -3', 5000), mem: trySh('free -m', 5000) });
+    if (i >= 8) throw new Error('emulator stayed offline after launching the app');
+    revive(); await sleep(3000); continue;
+  }
   sock = trySh('adb shell cat /proc/net/unix', 30000).split('\n').map((l) => l.match(/@(webview_devtools_remote_\d+)/)?.[1]).find(Boolean) || '';
   if (!sock) await sleep(2000);
 }
@@ -99,6 +104,7 @@ const go = async (hash, wait = 3500) => {
 
 log('device', { model: sh('adb shell getprop ro.product.model'), android: sh('adb shell getprop ro.build.version.release'), webview: sh(`adb shell dumpsys package com.google.android.webview | grep versionName | head -1`) });
 log('page', { url: page.url, title: page.title });
+trySh('adb emu geo fix -8.5376 37.1363', 20000); // Portimão
 
 log('home', await ev(`
   await new Promise(r => setTimeout(r, 1500));
